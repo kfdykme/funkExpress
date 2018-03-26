@@ -1,0 +1,86 @@
+<head>
+<link rel="stylesheet" type="text/css" href="css/buttons.css" />
+<link rel="stylesheet" type="text/css" href="css/eidtor.css" />
+
+<script src="js/markdown.js"></script>
+<script src="js/jquery.js"></script>
+<script type="text/javascript">
+
+//ctrl + s 提交Form 同时覆盖浏览器的快捷键
+    $(document).keydown(function(event){
+ 　　　if (event.ctrlKey && event.keyCode === 83){
+          document.getElementById('_form').submit();
+           event.preventDefault();
+ 　　　 }
+ 　　});
+
+    function tab(textarea){
+
+      if(event.keyCode == 9){
+        var position=textarea.selectionStart+4;//此处我用了两个空格表示缩进，其实无所谓几个，只要和下面保持一致就好了。
+     textarea.value=textarea.value.substr(0,textarea.selectionStart)+'    '+textarea.value.substr(textarea.selectionStart);
+     textarea.selectionStart=position;
+     textarea.selectionEnd=position;
+     textarea.focus();
+     event.preventDefault();
+
+   }else if (event.ctrlKey && event.keyCode === 83){
+            document.getElementById('_form').submit();
+             event.preventDefault();
+   　　　 }
+   }
+</script>
+<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=default"></script>
+</head>
+<body>
+
+  <div class="left">
+      <div class="header">
+      <a href="/write" class="button button-royal">Write</a>
+    <!-- <a href="/write"class="button   button-rounded">Back</a> -->
+
+    </div>
+    <div class="list">
+      <% for(var i=0; i<posts.length; i++) { %>
+
+        <form id="_form<%= i %>" method="post" action="/write">
+           <input type="hidden" name="id" value="<%= posts[i].id %>" />
+
+          <p onclick="document.getElementById('_form<%= i %>').submit();" class="button" ><%= posts[i].post_title%></p>
+        </form>
+      <% } %>
+    </div>
+
+  </div>
+
+  <div class="article">
+
+      <form id="_form" action="/write_save" method="POST"   >
+        <button type="submit" class="button  button-rounded" >Submit</button>
+
+        <input type="hidden" name="id" value="<%= post.id%>">
+        <input type="text" name="title"  value="<%= post.post_title%>" /><br />
+        <div class="">
+          <div class="editor">
+          <textarea id="text-input" oninput="this.editor.update()" name="content"   onkeydown="tab(this)"><%= post.post_content%></textarea><br />
+          </div>
+          <div id="preview"> </div>
+        </div>
+
+      </form>
+
+  </div>
+
+  <script>
+  
+    function Editor(input, preview) {
+      this.update = function () {
+        preview.innerHTML = markdown.toHTML(input.value);
+      };
+      input.editor = this;
+      this.update();
+    }
+    var $ = function (id) { return document.getElementById(id); };
+    new Editor($("text-input"), $("preview"));
+  </script>
+</body>
