@@ -99,8 +99,9 @@ app.post("/",function(req,res){
 
 
       if(req.body.mode == 'save'){
-        console.log("do save");
-
+        console.log("try to  save: ");
+        console.log("id : "+req.body.id);
+        console.log("title : "+req.body.title);
 
         try {
           var sendtags = req.body.tags.split(",");
@@ -121,25 +122,15 @@ app.post("/",function(req,res){
               var oldP = p[0];
               oldP.post_title = req.body.title;
               oldP.post_content = req.body.content;
+              console.log("old title : "+oldP.post_title);
               while(oldP.tag.length != 0)
                 oldP.tag.pop();
               for(const k in tags){
-
                 var tag = tags[k];
                 for(const key in sendtags){
                   if(sendtags[key] == tag.name  ){
 
-                    // var sP = true;
-                    // for(const a in oldP.tag){
-                    //   if(oldP.tag[a].name == tag.name)
-                    //     sP = false;
-                    // }
-                    // if(sP){
                       oldP.tag.push(tag);
-                    //   console.log("push in");
-                    // } else{
-                    //   console.log("do not push in "+ tag.name);
-                    // }
                   }
                 }
               }
@@ -157,18 +148,8 @@ app.post("/",function(req,res){
                 var tag = tags[k];
                 for(const key in sendtags){
                   if(sendtags[key] == tag.name  ){
-                    var sP = true;
-
-                    for(const a in tempPost.tag){
-                      if(tempPost.tag[a].name == tag.name)
-                        sP = false;
-                    }
-                    if(sP){
                       tempPost.tag.push(tag);
-                      console.log("push in");
-                    } else{
-                      console.log("do not push in "+ tag.name);
-                    }
+
                   }
                 }
 
@@ -186,10 +167,11 @@ app.post("/",function(req,res){
 
       } else if(req.body.mode == 'write'){
 
-        console.log("write");
+        console.log("write : ");
 
         if(p.length > 0){
-
+          console.log("id : "+p[0].id);
+          console.log("title : "+p[0].post_title);
           renderId =p[0].id;
           renderTitle = p[0].post_title;
           renderContent = p[0].post_content;
@@ -197,10 +179,14 @@ app.post("/",function(req,res){
           for(var i = 0 ; i< p[0].tag.length;i++)
              renderTags = renderTags+p[0].tag[i].name+",";
         } else {
-          renderId = uuid();
+          var nid = uuid();
+          console.log("new :");
+          console.log("id : "+nid);
+
+          renderId = nid;
           renderTitle = "title";
           renderContent = "content";
-          renderTags = "";
+          renderTags = cTag;
 
         }
 
@@ -239,6 +225,9 @@ app.post("/",function(req,res){
       console.log(error);
     });
 
+
+    console.log();
+    console.log();
 
 });
 

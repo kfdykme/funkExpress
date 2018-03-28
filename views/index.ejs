@@ -72,8 +72,17 @@
         return temp;
       }
 
-      function read(id){
+      function read(index,mode){
+        var id = document.getElementById("list_item_"+index).value;
+        console.log(id+"/"+mode);
+        var currentTag = document.getElementById("tags-select").value;
+        var params ={
+          id:id,
+          mode:mode,
+          currentTag : currentTag
+        }
 
+        formPost(params);
       }
 
       function uuid() {
@@ -93,7 +102,7 @@
     </script>
   </head>
   <body >
-      <div class="header">
+      <header>
         <button   class="button button-royal" id="button-write" onclick="post('write')">Write</button>
         <button   class="button button-royal" id="button-save" onclick="post('save')">Save</button>
         <div class="post-title">
@@ -102,31 +111,38 @@
           <input id="post-title-input" type="text" name="title"  value="<%= post.post_title%>" />
           <p>Tag</p>
 
-          <input id="post-tag-input" type="text" name="tag"  value="<%= post.tags%>" />
-        </div>
-        <select id="tags-select" class="tags-select" onchange="post('save')">
-          <option value ="all">all</option>
-          <% for(var i =0; i < tags.length;i++){%>
-            <% if(tags[i].name == currentTag){%>
-                <option value ="<%= tags[i].name%>" selected="selected"><%= tags[i].name%></option>
-            <%} else {%>
-              <option value ="<%= tags[i].name%>"><%= tags[i].name%></option>
-              <%}%>
-          <%}%>
+          <input id="post-tag-input" list="tags-datalist" type="text" name="tag"  value="<%= post.tags%>" />
+          <datalist id="tags-datalist">
+            <% for(var i =0; i < tags.length;i++){%>
+                <option value ="<%= tags[i].name%>"><%= tags[i].name%></option>
 
-        </select>
+            <%}%>
+          </datalist>
+        </div>
+
         <button   class="button button-royal" id="button-delete" onclick="post('delete')">Delete</button>
 
-      </div>
+      </header>
       <div class="container">
           <div class="list">
+            <select id="tags-select" class="tags-select" onchange="post('save')">
+              <option value ="all">all</option>
+              <% for(var i =0; i < tags.length;i++){%>
+                <% if(tags[i].name == currentTag){%>
+                    <option value ="<%= tags[i].name%>" selected="selected"><%= tags[i].name%></option>
+                <%} else {%>
+                  <option value ="<%= tags[i].name%>"><%= tags[i].name%></option>
+                  <%}%>
+              <%}%>
+
+            </select>
             <% for(var i=0; i<posts.length; i++) { %>
 
               <form id="_form<%= i %>" method="post" action="/">
-                <input type="hidden" name="id" value="<%= posts[i].id %>" />
+                <input type="hidden" id="list_item_<%= i %>" name="id" value="<%= posts[i].id %>" />
                 <input type="hidden" name="mode" value="write" />
 
-                <p onclick="document.getElementById('_form<%= i %>').submit();" class="button" ><%= posts[i].post_title%></p>
+                <p onclick="read(<%= i %>,'write')" class="button" ><%= posts[i].post_title%></p>
               </form>
             <% } %>
           </div>
@@ -139,9 +155,9 @@
             </div>
           </div>
       </div>
-      <div class="footer">
-
-      </div>
+      <footer>
+        <p>  kfdykme 2017-</p>
+      </footer>
 
       <script type="text/javascript">
 
