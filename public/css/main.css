@@ -1,27 +1,17 @@
-input {
-  width: 40%;
-  background: transparent;
-  font-size:  large;
-  color: #333;
-  border: 0px;
-  outline:none;
-}
 
 
 html, body {
   height: 100%;
   font-family:serif;
   font-weight: 30;
+  overflow-y: hidden;
 }
 
-li {
-}
 
 .header{
   width: 100%;
   height: 7%;
   background: #333;
-
   display: inline-block;
 }
 
@@ -36,26 +26,36 @@ li {
   width: 65%;
   height: 100%;
   color: #eee;
-  display: inline-block;
   padding: 0;
-  margin-top: 0.5%;
   margin-left: 1%;
+  display: block;
+  float: left;
 }
 
 .header .post-title p{
-  color: inherit;
+  color: #eee;
   display: inline-block;
   line-height: 100%;
-  vertical-align:middle;
+  padding-left: 20px;
+  padding-right: 20px;
+  align-content: center;
+  display: block;
+  float: left;
 }
 
-.header .post-title input{
-  background-color: rgba(111,111,111,0.5);
-  padding: 0.5%;
-  color: inherit;
-  display: inline-block;
 
-  line-height: 100%;
+.header .post-title input{
+  padding: 0.5%;
+  margin-left: 0.5%;
+  color: inherit;
+  width: 40%;
+  height: 80%;
+  background: #444;
+  font-size:  large;
+  border: 0px;
+  display: block;
+  float: left;
+  outline:none  ;
 }
 
 .header a{
@@ -63,6 +63,31 @@ li {
   float: left;
 }
 
+.header #button-delete{
+  display: none;  
+  float: right;
+  box-sizing: border-box;
+  background: #ddd;
+  color: #333;
+}
+
+.header #button-delete:hover{
+
+  background: #333;
+  color: #eee;
+}
+
+.header .tags-select{
+  display: block;
+  float: left;
+  border: 0px;
+  width: 60px;
+  line-height: 100%;
+  background: #444;
+  margin-top: 1%;
+  color: #eee;
+  margin-left: -10px;
+}
 
 .container{
   height:93%;
@@ -84,7 +109,7 @@ li {
   background: #333;
   width: 100%;
   font-size: 12px;
-  padding-left: 0;
+  padding-left: 5px;
   text-align: left;
   color: #eee;
   overflow: hidden;
@@ -105,8 +130,8 @@ li {
   height: 100%;
   float: left;
   box-sizing: border-box;
-  overflow :auto;
-  background: #999;
+  overflow :hidden;
+  background:#eee;
 }
 
 .write textarea{
@@ -116,7 +141,8 @@ li {
   font-size: large;
   font-family: "Times New Roman",Georgia,Serif;
   color: #555;
-  padding: 2%;
+  padding-left: 2%;
+  padding-top: 2%;
   border: 0px;
   outline:none;
 }
@@ -126,16 +152,19 @@ li {
   height: 100%;
   padding: 2%;
   float: left;
+  background: #444;
   box-sizing: border-box;
   overflow :auto;
+  color: #eee;
 }
 
 .preview h1,h2,h3,h4,h5{
- color: #2c3f51;
+ color: #bcd4ff;
 }
 .preview a{
-  color: #bcd4ff;
+  color: #ffbcd4;
 }
 .preview li,p{
-  color: #2c3f51;
+  color: #eee;
+  padding-top: 2px;
 }

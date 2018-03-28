@@ -11,6 +11,8 @@
     <script src="js/jquery.js"></script>
     <script type="text/javascript">
 
+
+
     //ctrl + s 提交Form 同时覆盖浏览器的快捷键
         $(document).keydown(function(event){
      　　　if (event.ctrlKey && event.keyCode === 83){
@@ -26,40 +28,38 @@
                event.preventDefault();
             }
      　　});
-        //
-        // function tab(textarea){
-        //
-        //   if(event.keyCode == 9){
-        //      var position=textarea.selectionStart+4;//此处我用了两个空格表示缩进，其实无所谓几个，只要和下面保持一致就好了。
-        //      textarea.value=textarea.value.substr(0,textarea.selectionStart)+'    '+textarea.value.substr(textarea.selectionStart);
-        //      textarea.selectionStart=position;
-        //      textarea.selectionEnd=position;
-        //      textarea.focus();
-        //      event.preventDefault();
-        //
-        //    }else if (event.ctrlKey && event.keyCode === 83){
-        //      post('save')
-        //      event.preventDefault();
-        //    }
-       // }
+
     </script>
-    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=default"></script>
-    <script type="text/javascript">
+     <script type="text/javascript">
       function post(mode){
-        var temp = document.createElement("form");
-            temp.action = "/";
-            temp.method = "post";
-            temp.style.display = "none";
+
         var title = document.getElementById("post-title-input").value;
         var id = document.getElementById("post-id-input").value;
         var content = document.getElementById("text-input").value;
+        var tags = document.getElementById("post-tag-input").value;
+        var currentTag = document.getElementById("tags-select").value;
+
         if(mode == "write") id = uuid();
         var params ={
           id:id,
           title:title,
           content:content,
-          mode:mode
+          tags:tags,
+          mode:mode,
+          currentTag : currentTag
         }
+
+        formPost(params);
+      }
+
+      function formPost(params){
+
+
+        var temp = document.createElement("form");
+            temp.action = "/";
+            temp.method = "post";
+            temp.style.display = "none";
+            document.body.appendChild(temp);
 
         for (var x in params ) {
             var opt = document.createElement("textarea");
@@ -67,11 +67,12 @@
             opt.value = params[x];
             temp.appendChild(opt);
         }
-
-        document.body.appendChild(temp);
-        temp.submit();
+            temp.submit();
 
         return temp;
+      }
+
+      function read(id){
 
       }
 
@@ -88,9 +89,10 @@
           var uuid = s.join("");
           return uuid;
       }
+
     </script>
   </head>
-  <body>
+  <body >
       <div class="header">
         <button   class="button button-royal" id="button-write" onclick="post('write')">Write</button>
         <button   class="button button-royal" id="button-save" onclick="post('save')">Save</button>
@@ -98,7 +100,23 @@
           <p>Title</p>
             <input id="post-id-input" type="hidden" name="id" value="<%= post.id%>">
           <input id="post-title-input" type="text" name="title"  value="<%= post.post_title%>" />
+          <p>Tag</p>
+
+          <input id="post-tag-input" type="text" name="tag"  value="<%= post.tags%>" />
         </div>
+        <select id="tags-select" class="tags-select" onchange="post('save')">
+          <option value ="all">all</option>
+          <% for(var i =0; i < tags.length;i++){%>
+            <% if(tags[i].name == currentTag){%>
+                <option value ="<%= tags[i].name%>" selected="selected"><%= tags[i].name%></option>
+            <%} else {%>
+              <option value ="<%= tags[i].name%>"><%= tags[i].name%></option>
+              <%}%>
+          <%}%>
+
+        </select>
+        <button   class="button button-royal" id="button-delete" onclick="post('delete')">Delete</button>
+
       </div>
       <div class="container">
           <div class="list">
@@ -113,7 +131,7 @@
             <% } %>
           </div>
           <div class="editor">
-            <div class="write">
+            <div class="write" id="write">
               <textarea id="text-input" oninput="this.editor.update()" name="content"    ><%= post.post_content%> </textarea><br />
             </div>
             <div class="preview" id="preview">
@@ -124,6 +142,22 @@
       <div class="footer">
 
       </div>
+
+      <script type="text/javascript">
+
+        $("#text-input").scroll(function(){
+            var d = document.getElementById('text-input');
+            var p = document.getElementById('preview');
+            console.log("scroll");
+            console.log(d.scrollTop + " : "+ document.getElementById('preview').scrollTop)
+            var radio = d.scrollTop/d.scrollHeight;
+            var currentHeight = p.scrollHeight * radio;
+            console.log(radio +"/// "+currentHeight);
+           p.scrollTop = currentHeight; // 纵向滚动条
+
+         });
+
+      </script>
         <script type="text/javascript"
         src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
         </script>
@@ -139,11 +173,11 @@
             };
             input.editor = this;
             this.update();
-            MathJax.Hub.Queue(["Typeset", MathJax.Hub]);
+
           }
           var $ = function (id) { return document.getElementById(id); };
           new Editor($("text-input"), $("preview"));
-        //  tab($("text-input"));
+
         </script>
 
 

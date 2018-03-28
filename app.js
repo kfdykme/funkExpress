@@ -9,18 +9,38 @@ const INSTANCE_ADDRESS = "119.23.41.35:9080";
 const REALM_BASE_URL = "realm://"+INSTANCE_ADDRESS;
 
 
-const Post ={
-  name : 'Post',
-  properties:{
-    id:"string",
-    post_author:"string",
-    post_content:"string",
-    post_title:"string",
-    post_status:"string",
-    post_date: "date",
+// const Post ={
+//   name : 'Post',
+//   properties:{
+//     id:"string",
+//     post_author:"string",
+//     post_content:"string",
+//     post_title:"string",
+//     post_status:"string",
+//     post_date: "date",
+//   }
+// }
+
+const newPost ={
+  name: 'Post',
+  properties: {
+    id: 'string',
+    post_author: 'string',
+    post_content: 'string',
+    post_title: 'string',
+    post_status: 'string',
+    post_date: 'date',
+    tag:  {type: 'list', objectType: 'Tag'}
   }
 }
-
+const Tag = {
+  name: 'Tag',
+  primaryKey: 'uuid',
+  properties: {
+    uuid: 'string',
+    name: 'string'
+  }
+}
 
 
 function uuid() {
@@ -37,82 +57,188 @@ function uuid() {
     return uuid;
 }
 
+function isIn(e,tags){
+  for(const key in tags){
+    if(e == tags[key].name)
+      return true;
+  }
+  return false;
+}
 
 app.set('view engine', 'ejs');
+
 app.use(express.static('public'));
 
 app.use(bodyParser.urlencoded({extended: true}));
 
 app.post("/",function(req,res){
-  if(req.body.mode == 'save'){
-    console.log("do save");
 
-        getRealm()
-          .then(realm =>{
-             var post = realm.objects('Post');
-              var p = post.filtered('id = "'+req.body.id+'"');
+  getRealm()
+    .then(realm =>{
 
-              realm.write(() => {
-                if(p.length > 0){
-                  var oldP = p[0];
-                  oldP.post_title = req.body.title;
-                  oldP.post_content = req.body.content;
-                } else
-                realm.create("Post",{
-                  id : req.body.id,
-                  post_title: req.body.title,
-                  post_author: "kf",
-                  post_content: req.body.content,
-                  post_date :new Date(),
-                  post_status:""
+      var posts = realm.objects('Post').sorted('post_title');
+      var tags = realm.objects('Tag');
+      var cTag = req.body.currentTag;
+      var sSelect = cTag != null && cTag != 'all';
+      var p = posts.filtered('id = "'+req.body.id+'"');
+      if(sSelect){
+        console.log("filtered posts by tag");
+        posts = posts.filtered("ANY tag.name = '"+cTag+"'");
+
+      }
+
+
+
+      var renderTitle;
+      var renderContent;
+      var renderId;
+      var renderTags;
+      var renderStatus;
+
+
+
+
+      if(req.body.mode == 'save'){
+        console.log("do save");
+
+
+        try {
+          var sendtags = req.body.tags.split(",");
+          realm.write(() => {
+
+            //save and update tags
+            for(const key in sendtags){
+              if(sendtags[key] != "" && !isIn(sendtags[key],tags)){
+                realm.create("Tag",{
+                  uuid :uuid(),
+                  name :sendtags[key]
                 });
+              }
+            }
 
 
-                res.render('index.ejs', {post:{
-                  id:req.body.id,
-                  post_title:req.body.title,
-                  post_content:req.body.content,
-                  md:markdown.toHTML( req.body.content )
-                },
-                posts: post,});
+            if(p.length > 0){
+              var oldP = p[0];
+              oldP.post_title = req.body.title;
+              oldP.post_content = req.body.content;
+              while(oldP.tag.length != 0)
+                oldP.tag.pop();
+              for(const k in tags){
 
+                var tag = tags[k];
+                for(const key in sendtags){
+                  if(sendtags[key] == tag.name  ){
+
+                    // var sP = true;
+                    // for(const a in oldP.tag){
+                    //   if(oldP.tag[a].name == tag.name)
+                    //     sP = false;
+                    // }
+                    // if(sP){
+                      oldP.tag.push(tag);
+                    //   console.log("push in");
+                    // } else{
+                    //   console.log("do not push in "+ tag.name);
+                    // }
+                  }
+                }
+              }
+            } else{
+              let tempPost = realm.create("Post",{
+                id : req.body.id,
+                post_title: req.body.title,
+                post_author: "kf",
+                post_content: req.body.content,
+                post_date :new Date(),
+                post_status:"",
+                tag:[]
+              });
+              for(const k in tags){
+                var tag = tags[k];
+                for(const key in sendtags){
+                  if(sendtags[key] == tag.name  ){
+                    var sP = true;
+
+                    for(const a in tempPost.tag){
+                      if(tempPost.tag[a].name == tag.name)
+                        sP = false;
+                    }
+                    if(sP){
+                      tempPost.tag.push(tag);
+                      console.log("push in");
+                    } else{
+                      console.log("do not push in "+ tag.name);
+                    }
+                  }
+                }
+
+              }
+            }
+              renderId = req.body.id;
+              renderTitle = req.body.title;
+              renderContent = req.body.content;
+              renderTags = req.body.tags;
             });
-          }).catch(error =>{
-            console.log(error);
+
+        } catch (e) {
+          console.log(e);
+        }
+
+      } else if(req.body.mode == 'write'){
+
+        console.log("write");
+
+        if(p.length > 0){
+
+          renderId =p[0].id;
+          renderTitle = p[0].post_title;
+          renderContent = p[0].post_content;
+          renderTags = "";
+          for(var i = 0 ; i< p[0].tag.length;i++)
+             renderTags = renderTags+p[0].tag[i].name+",";
+        } else {
+          renderId = uuid();
+          renderTitle = "title";
+          renderContent = "content";
+          renderTags = "";
+
+        }
+
+
+      } else if(req.body.mode == 'delete'){
+        console.log("try delete "+ req.body.id +" : "+req.body.title);
+        if(p.length > 0){
+          realm.write(() => {
+            realm.delete(p);
           });
-  } else if(req.body.mode == 'write'){
-    console.log("write");
-    getRealm()
-        .then(realm =>{
-          var posts = realm.objects('Post');
-          var post = realm.objects('Post');
-           var p = realm.objects('Post').filtered('id = "'+req.body.id+'"');
+        }
 
-           if(p.length > 0){
-             res.render('index.ejs', {post:{
-               id:p[0].id,
-               post_title:p[0].post_title,
-               post_content:p[0].post_content,
-               md:markdown.toHTML(p[0].post_content )
-             },
-             posts: post,});
-           } else {
-             res.render('index.ejs',{
-               post:{
-               id : uuid(),
-               post_title:"title",
-               post_content:"content" ,
-               md:markdown.toHTML("content" )
-               },
-               posts :posts,
-             });
-           }
+        renderId = uuid();
+        renderTitle = "title";
+        renderContent = "content";
+        renderTags = "";
 
+        console.log("delete success");
+      }
 
-         }).catch(error => {
-             console.log(error);
-         });
-  }
+      res.render('index.ejs', {
+
+        post:{
+          id:renderId,
+          post_title:renderTitle,
+          post_content:renderContent,
+          tags:renderTags,
+          md:markdown.toHTML( renderContent )
+        },
+        posts: posts,
+        tags :tags,
+        currentTag:cTag
+      });
+
+    }).catch(error =>{
+      console.log(error);
+    });
+
 
 });
 
@@ -120,6 +246,8 @@ app.get('/', function (req, res) {
   getRealm()
       .then(realm =>{
         var posts = realm.objects('Post');
+        var tags = realm.objects('Tag');
+
         res.render('index.ejs',{
           post:{
           id : uuid(),
@@ -127,95 +255,14 @@ app.get('/', function (req, res) {
           post_content:"content"
           },
           posts :posts,
+          tags : tags,
+          currentTag:"all"
         });
 
        }).catch(error => {
            console.log(error);
        });
 });
-
-//
-// app.get('/write', function(req, res) {
-//   getRealm()
-//       .then(realm =>{
-//          var post = realm.objects('Post');
-//
-//              res.render('write.ejs', {
-//                post:{
-//                id : uuid(),
-//                post_title:"title",
-//                post_content:"content"
-//                },
-//                 posts: post,});
-//
-//
-//       }).catch(error => {
-//         console.log(error);
-//       });
-//
-// });
-// app.post('/go',function(req,res){
-//   res.json(req.body.post);
-// });
-//
-// app.post('/write',function(req,res){
-// getRealm()
-//     .then(realm =>{
-//        var post = realm.objects('Post');
-//         var p = realm.objects('Post').filtered('id = "'+req.body.id+'"');
-//         res.render('write.ejs', {post:{
-//           id:p[0].id,
-//           post_title:p[0].post_title,
-//           post_content:p[0].post_content
-//         },
-//         posts: post,});
-//
-//     }).catch(error => {
-//       console.log(error);
-//     });
-//
-//
-// });
-//
-//
-//
-// app.post('/write_save', function(req, res) {
-//
-//     getRealm()
-//       .then(realm =>{
-//          var post = realm.objects('Post');
-//           var p = realm.objects('Post').filtered('id = "'+req.body.id+'"');
-//
-//           realm.write(() => {
-//             if(p.length > 0){
-//               var oldP = p[0];
-//               oldP.post_title = req.body.title;
-//               oldP.post_content = req.body.content;
-//             } else
-//             realm.create("Post",{
-//               id : req.body.id,
-//               post_title: req.body.title,
-//               post_author: "kf",
-//               post_content: req.body.content,
-//               post_date :new Date(),
-//               post_status:""
-//             });
-//
-//
-//             res.render('write.ejs', {post:{
-//               id:req.body.id,
-//               post_title:req.body.title,
-//               post_content:req.body.content
-//             },
-//             posts: post,});
-//
-//         });
-//       }).catch(error =>{
-//         console.log(error);
-//       });
-// });
-//
-
 
 function getRealm(){
   var user =  Realm.Sync.User.current;
@@ -225,12 +272,19 @@ function getRealm(){
       user:user,
       url:serverUrl
     },
-    schema:[Post]
+    schema:[newPost,Tag],
+    schemaVersion: 2
   };
     return  Realm.open(config);
 
 }
+
 function login(){
+    // var users = Realm.Sync.User.all;
+    // for(const key in users){
+    //   const u = users[key];
+    //   u.logout();
+    // }
 
     Realm.Sync.User.login('http://119.23.41.35:9080', 'kf', 'kfdykme').then(user => {
 
