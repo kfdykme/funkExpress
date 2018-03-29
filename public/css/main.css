@@ -81,7 +81,7 @@ header #button-delete:hover{
 
 
 .container{
-  height:88%;
+  height:93%;
   width: 100%;
 }
 
@@ -177,7 +177,7 @@ header #button-delete:hover{
 }
 
 footer{
-  height: 5%;
+  height: 0%;
 }
 footer p{
   margin: 0;
