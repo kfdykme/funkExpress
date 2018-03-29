@@ -141,8 +141,11 @@
               <form id="_form<%= i %>" method="post" action="/">
                 <input type="hidden" id="list_item_<%= i %>" name="id" value="<%= posts[i].id %>" />
                 <input type="hidden" name="mode" value="write" />
-
-                <p onclick="read(<%= i %>,'write')" class="button" ><%= posts[i].post_title%></p>
+                  <% if(posts[i].id == post.id) {%>
+                    <p onclick="read(<%= i %>,'write')" class="button list-selected" ><%= posts[i].post_title%></p>
+                  <% } else { %>
+                    <p onclick="read(<%= i %>,'write')" class="button" ><%= posts[i].post_title%></p>
+                  <% } %>
               </form>
             <% } %>
           </div>

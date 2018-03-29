@@ -117,6 +117,12 @@ header #button-delete:hover{
   white-space: nowrap;
 }
 
+.list .list-selected{
+  background: #eee;
+  color: #333;
+  font-size: 15px;
+}
+
 .editor{
   width: 80%;
   height: 100%;
