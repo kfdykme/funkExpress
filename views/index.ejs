@@ -11,7 +11,22 @@
     <script src="js/jquery.js"></script>
     <script type="text/javascript">
 
+    function changeReadMode(){
+      var editor  = document.getElementById("write");
+      var priv = document.getElementById("preview");
+      if(!isReading){
+        isReading = true;
+        editor.style.width = "0";
+        priv.style.width = "100%";
+      } else{
 
+        isReading = false;
+        editor.style.width = "50%";
+        priv.style.width = "50%";
+      }
+      console.log("change");
+      // Copyright (c) 2017 Copyright Holder All Rights Reserved.
+    }
 
     //ctrl + s 提交Form 同时覆盖浏览器的快捷键
         $(document).keydown(function(event){
@@ -29,8 +44,6 @@
             }
      　　});
 
-    </script>
-     <script type="text/javascript">
       function post(mode){
 
         var title = document.getElementById("post-title-input").value;
@@ -99,6 +112,9 @@
           return uuid;
       }
 
+      var isReading = false;
+
+
     </script>
   </head>
   <body >
@@ -119,8 +135,8 @@
             <%}%>
           </datalist>
         </div>
-
         <button   class="button button-royal" id="button-delete" onclick="post('delete')">Delete</button>
+        <button   class="button button-royal" id="button-read" onclick="changeReadMode()">Read</button>
 
       </header>
       <div class="container">
@@ -156,6 +172,7 @@
             <div class="preview" id="preview">
 
             </div>
+
           </div>
       </div>
       <footer>

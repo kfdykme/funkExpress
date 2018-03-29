@@ -16,11 +16,11 @@ header{
   margin-bottom: 2px;
 }
 
-header button{
+header .button{
   height: 100%;
   width: 10%;
   float: left;
-  background: #555;
+  box-sizing:border-box;
 }
 
 header .post-title{
@@ -73,6 +73,20 @@ header #button-delete{
 }
 
 header #button-delete:hover{
+
+  background: #333;
+  color: #eee;
+}
+
+header #button-read{
+    float: right;
+    height: 100%;
+    box-sizing: border-box;
+    background: #ddd;
+    color: #333;
+}
+
+header #button-read:hover{
 
   background: #333;
   color: #eee;
@@ -174,6 +188,13 @@ header #button-delete:hover{
 .preview li,p{
   color: #eee;
   padding-top: 2px;
+}
+
+.read{
+  position: absolute;
+  background: #eee;
+  width: 100px;
+  height: 100px;
 }
 
 footer{
