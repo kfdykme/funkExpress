@@ -188,6 +188,8 @@ header #button-read:hover{
 .preview li,p{
   color: #eee;
   padding-top: 2px;
+  letter-spacing: 3px;
+  line-height: 30px;
 }
 
 .read{
