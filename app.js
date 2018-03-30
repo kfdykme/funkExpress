@@ -94,6 +94,7 @@ app.post("/",function(req,res){
       var renderId;
       var renderTags;
       var renderStatus;
+      var renderRadio = 0;
 
 
 
@@ -102,6 +103,8 @@ app.post("/",function(req,res){
         console.log("try to  save: ");
         console.log("id : "+req.body.id);
         console.log("title : "+req.body.title);
+
+        renderRadio = req.body.radio;
 
         try {
           var sendtags = req.body.tags.split(",");
@@ -218,7 +221,8 @@ app.post("/",function(req,res){
         },
         posts: posts,
         tags :tags,
-        currentTag:cTag
+        currentTag:cTag,
+        radio:renderRadio
       });
 
     }).catch(error =>{
@@ -245,7 +249,8 @@ app.get('/', function (req, res) {
           },
           posts :posts,
           tags : tags,
-          currentTag:"all"
+          currentTag:"all",
+          radio:0
         });
 
        }).catch(error => {

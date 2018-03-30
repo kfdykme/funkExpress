@@ -10,114 +10,13 @@
     <script src="js/markdown.js"></script>
     <script src="js/jquery.js"></script>
     <script type="text/javascript">
-
-    function changeReadMode(){
-      var editor  = document.getElementById("write");
-      var priv = document.getElementById("preview");
-      if(!isReading){
-        isReading = true;
-        editor.style.width = "0";
-        priv.style.width = "100%";
-      } else{
-
-        isReading = false;
-        editor.style.width = "50%";
-        priv.style.width = "50%";
+      function init(){
+        var top = <%= radio%>;
+        document.getElementById("text-input").scrollTop = top;
       }
-      console.log("change");
-      // Copyright (c) 2017 Copyright Holder All Rights Reserved.
-    }
-
-    //ctrl + s 提交Form 同时覆盖浏览器的快捷键
-        $(document).keydown(function(event){
-     　　　if (event.ctrlKey && event.keyCode === 83){
-            post('save')
-               event.preventDefault();
-     　　　 } else if (event.keyCode == 9){
-               var textarea = document.getElementById('text-input');
-               var position=textarea.selectionStart+4;//此处我用了两个空格表示缩进，其实无所谓几个，只要和下面保持一致就好了。
-               textarea.value=textarea.value.substr(0,textarea.selectionStart)+'    '+textarea.value.substr(textarea.selectionStart);
-               textarea.selectionStart=position;
-               textarea.selectionEnd=position;
-               textarea.focus();
-               event.preventDefault();
-            }
-     　　});
-
-      function post(mode){
-
-        var title = document.getElementById("post-title-input").value;
-        var id = document.getElementById("post-id-input").value;
-        var content = document.getElementById("text-input").value;
-        var tags = document.getElementById("post-tag-input").value;
-        var currentTag = document.getElementById("tags-select").value;
-
-        if(mode == "write") id = uuid();
-        var params ={
-          id:id,
-          title:title,
-          content:content,
-          tags:tags,
-          mode:mode,
-          currentTag : currentTag
-        }
-
-        formPost(params);
-      }
-
-      function formPost(params){
-
-
-        var temp = document.createElement("form");
-            temp.action = "/";
-            temp.method = "post";
-            temp.style.display = "none";
-            document.body.appendChild(temp);
-
-        for (var x in params ) {
-            var opt = document.createElement("textarea");
-            opt.name = x;
-            opt.value = params[x];
-            temp.appendChild(opt);
-        }
-            temp.submit();
-
-        return temp;
-      }
-
-      function read(index,mode){
-        var id = document.getElementById("list_item_"+index).value;
-        console.log(id+"/"+mode);
-        var currentTag = document.getElementById("tags-select").value;
-        var params ={
-          id:id,
-          mode:mode,
-          currentTag : currentTag
-        }
-
-        formPost(params);
-      }
-
-      function uuid() {
-          var s = [];
-          var hexDigits = "0123456789abcdef";
-          for (var i = 0; i < 36; i++) {
-              s[i] = hexDigits.substr(Math.floor(Math.random() * 0x10), 1);
-          }
-          s[14] = "4";  // bits 12-15 of the time_hi_and_version field to 0010
-          s[19] = hexDigits.substr((s[19] & 0x3) | 0x8, 1);  // bits 6-7 of the clock_seq_hi_and_reserved to 01
-          s[8] = s[13] = s[18] = s[23] = "-";
-
-          var uuid = s.join("");
-          return uuid;
-      }
-
-      var isReading = false;
-
-
     </script>
   </head>
-  <body >
+    <body onload="init()">
       <header>
         <button   class="button button-royal" id="button-write" onclick="post('write')">Write</button>
         <button   class="button button-royal" id="button-save" onclick="post('save')">Save</button>
@@ -167,7 +66,7 @@
           </div>
           <div class="editor">
             <div class="write" id="write">
-              <textarea id="text-input" oninput="this.editor.update()" name="content"    ><%= post.post_content%> </textarea><br />
+              <textarea id="text-input" oninput="this.editor.update()" name="content"  scrollTop="<%= radio %>px"    ><%= post.post_content%> </textarea><br />
             </div>
             <div class="preview" id="preview">
 
@@ -180,6 +79,112 @@
       </footer>
 
       <script type="text/javascript">
+
+      function changeReadMode(){
+        var editor  = document.getElementById("write");
+        var priv = document.getElementById("preview");
+        if(!isReading){
+          isReading = true;
+          editor.style.width = "0";
+          priv.style.width = "100%";
+        } else{
+
+          isReading = false;
+          editor.style.width = "50%";
+          priv.style.width = "50%";
+        }
+        console.log("change");
+        // Copyright (c) 2017 Copyright Holder All Rights Reserved.
+      }
+
+      //ctrl + s 提交Form 同时覆盖浏览器的快捷键
+      $(document).keydown(function(event){
+
+   　　　if (event.ctrlKey && event.keyCode === 83){
+          post('save')
+             event.preventDefault();
+   　　　 } else if (event.keyCode == 9){
+             var textarea = document.getElementById('text-input');
+             var position=textarea.selectionStart+4;//此处我用了两个空格表示缩进，其实无所谓几个，只要和下面保持一致就好了。
+             textarea.value=textarea.value.substr(0,textarea.selectionStart)+'    '+textarea.value.substr(textarea.selectionStart);
+             textarea.selectionStart=position;
+             textarea.selectionEnd=position;
+             textarea.focus();
+             event.preventDefault();
+          }
+   　　});
+
+        function post(mode){
+
+          var title = document.getElementById("post-title-input").value;
+          var id = document.getElementById("post-id-input").value;
+          var content = document.getElementById("text-input").value;
+          var tags = document.getElementById("post-tag-input").value;
+          var currentTag = document.getElementById("tags-select").value;
+          var top = document.getElementById("text-input").scrollTop;
+          if(mode == "write") id = uuid();
+          var params ={
+            id:id,
+            title:title,
+            content:content,
+            tags:tags,
+            mode:mode,
+            currentTag : currentTag,
+            radio :top
+          }
+
+          formPost(params);
+        }
+
+        function formPost(params){
+
+
+          var temp = document.createElement("form");
+              temp.action = "/";
+              temp.method = "post";
+              temp.style.display = "none";
+              document.body.appendChild(temp);
+
+          for (var x in params ) {
+              var opt = document.createElement("textarea");
+              opt.name = x;
+              opt.value = params[x];
+              temp.appendChild(opt);
+          }
+              temp.submit();
+
+          return temp;
+        }
+
+        function read(index,mode){
+          var id = document.getElementById("list_item_"+index).value;
+          console.log(id+"/"+mode);
+          var currentTag = document.getElementById("tags-select").value;
+          var params ={
+            id:id,
+            mode:mode,
+            currentTag : currentTag
+          }
+
+          formPost(params);
+        }
+
+        function uuid() {
+            var s = [];
+            var hexDigits = "0123456789abcdef";
+            for (var i = 0; i < 36; i++) {
+                s[i] = hexDigits.substr(Math.floor(Math.random() * 0x10), 1);
+            }
+            s[14] = "4";  // bits 12-15 of the time_hi_and_version field to 0010
+            s[19] = hexDigits.substr((s[19] & 0x3) | 0x8, 1);  // bits 6-7 of the clock_seq_hi_and_reserved to 01
+            s[8] = s[13] = s[18] = s[23] = "-";
+
+            var uuid = s.join("");
+            return uuid;
+        }
+
+        var isReading = false;
+
 
         $("#text-input").scroll(function(){
             var d = document.getElementById('text-input');
